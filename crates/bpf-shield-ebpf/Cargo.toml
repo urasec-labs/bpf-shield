@@ -1,0 +1,30 @@
+[package]
+name = "bpf-shield-ebpf"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "BPF-Shield kernel-space probes (aya-ebpf, bpfel-unknown-none)"
+
+[[bin]]
+name = "bpf-shield-ebpf"
+path = "src/main.rs"
+
+[dependencies]
+aya-ebpf = { workspace = true }
+bpf-shield-common = { workspace = true }
+
+[build-dependencies]
+aya-build = { workspace = true }
+
+[profile.release]
+# `panic = "abort"` matters for more than size: aya-ebpf lowers panic paths to
+# `ud2`, and a reachable `ud2` in a BPF program is a verifier rejection. With
+# unwinding disabled LLVM emits a single cold trap per function instead of
+# landing pads the verifier would have to walk.
+panic = "abort"
+opt-level = 3
+lto = "fat"
+codegen-units = 1

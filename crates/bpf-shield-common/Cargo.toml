@@ -1,0 +1,21 @@
+[package]
+name = "bpf-shield-common"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Shared ABI between the BPF-Shield kernel and user-space halves"
+
+[dependencies]
+# Only pulled in by the user-space half, purely so that we can implement the
+# `aya::Pod` marker trait for our ABI structs. Keeping it optional is what
+# lets this crate stay `no_std` and compile for `bpfel-unknown-none`.
+aya = { workspace = true, optional = true }
+serde = { workspace = true, optional = true, features = ["derive"] }
+
+[features]
+default = []
+# Enabled by the agent/CLI: adds `aya::Pod` impls and `RuleView`.
+user = ["dep:aya", "dep:serde"]

@@ -1,0 +1,13 @@
+# BPF-Shield requires two toolchains:
+#
+#   * `nightly` for the kernel-space crate (aya-ebpf uses `-Zbuild-std=core`
+#     to compile `core` for the `bpfel-unknown-none` target).
+#   * `stable` is perfectly adequate for the user-space daemon and CLI.
+#
+# aya-build shells out to `rustup run nightly cargo ...` for the BPF package,
+# so `nightly` must be installed (see `make doctor`).
+[toolchain]
+channel = "nightly"
+components = ["rust-src", "rustfmt", "clippy"]
+targets = ["x86_64-unknown-linux-gnu"]
+profile = "minimal"

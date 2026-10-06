@@ -1,0 +1,59 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/bpf-shield-common",
+    "crates/bpf-shield-ebpf",
+    "crates/bpf-shield-agent",
+    "crates/bpf-shieldctl",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+license = "Apache-2.0"
+authors = ["BPF-Shield Authors <security@bpf-shield.io>"]
+repository = "https://github.com/bpf-shield/bpf-shield"
+description = "eBPF live hot-patching engine for Linux zero-days"
+
+[workspace.dependencies]
+# ---- Kernel space -------------------------------------------------------
+# aya-ebpf is `no_std`, `panic = "abort"` and targets `bpfel-unknown-none`.
+aya-ebpf = "0.2.1"
+aya-build = "0.2.0"
+
+# ---- User space ---------------------------------------------------------
+aya = "0.14.0"
+anyhow = "1.0"
+clap = { version = "4.5", features = ["derive", "env"] }
+libc = "0.2"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+tokio = { version = "1", features = [
+    "rt-multi-thread",
+    "macros",
+    "net",
+    "io-util",
+    "signal",
+    "sync",
+    "time",
+    "fs",
+] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# ---- Internal ABI -------------------------------------------------------
+bpf-shield-common = { path = "crates/bpf-shield-common", default-features = false }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+panic = "abort"
+strip = "debuginfo"
+
+# The eBPF object is a separate artifact built by aya-build; keep debug info
+# in it so that `bpftool prog dump` / BTF stay useful in production.
+[profile.dev]
+panic = "abort"
